@@ -17,7 +17,6 @@ cold_wallet = generate_faucet_wallet(client, debug=True)
 hot_wallet = generate_faucet_wallet(client, debug=True)
 hot_wallet_2 = generate_faucet_wallet(client, debug=True)
 
-
 # Configure issuer (cold address) settings -------------------------------------
 cold_settings_tx = xrpl.models.transactions.AccountSet(
     account=cold_wallet.classic_address,
@@ -39,7 +38,7 @@ print(response)
 # Configure hot address settings -----------------------------------------------
 hot_settings_tx = xrpl.models.transactions.AccountSet(
     account=hot_wallet.classic_address,
-    set_flag=xrpl.models.transactions.AccountSetFlag.ASF_REQUIRE_AUTH,
+
 )
 hst_prepared = xrpl.transaction.safe_sign_and_autofill_transaction(
     transaction=hot_settings_tx,
@@ -54,7 +53,7 @@ print(response)
 # Configure hot address 2 settings -----------------------------------------------
 hot_settings_tx_2 = xrpl.models.transactions.AccountSet(
     account=hot_wallet_2.classic_address,
-    set_flag=xrpl.models.transactions.AccountSetFlag.ASF_REQUIRE_AUTH,
+
 )
 hst_prepared_2 = xrpl.transaction.safe_sign_and_autofill_transaction(
     transaction=hot_settings_tx_2,
@@ -131,7 +130,7 @@ response = client.request(xrpl.models.requests.GatewayBalances(
 print(response)
 
 
-hot_wallet_2 = generate_faucet_wallet(client, debug=True)
+
 
 # Create trust line from hot 2 to cold address -----------------------------------
 currency_code = "FOO"
@@ -161,6 +160,11 @@ send_token_tx = xrpl.models.transactions.Payment(
         currency=currency_code,
         issuer=cold_wallet.classic_address,
         value=issue_quantity
+    ),
+    send_max=xrpl.models.amounts.issued_currency_amount.IssuedCurrencyAmount(
+        currency=currency_code,
+        issuer=cold_wallet.classic_address,
+        value="2500"
     )
 )
 pay_prepared = xrpl.transaction.safe_sign_and_autofill_transaction(
