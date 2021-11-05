@@ -152,7 +152,7 @@ response = xrpl.transaction.send_reliable_submission(ts_prepared, client)
 print(response)
 
 # Send token 2 -------------------------------------------------------------------
-issue_quantity = "1000"
+issue_quantity = "2000"
 send_token_tx = xrpl.models.transactions.Payment(
     account=hot_wallet.classic_address,
     destination=hot_wallet_2.classic_address,
