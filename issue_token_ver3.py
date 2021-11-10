@@ -21,7 +21,7 @@ account_2 = generate_faucet_wallet(client, debug=True)
 # Configure issuer (cold address) settings -------------------------------------
 cold_settings_tx = xrpl.models.transactions.AccountSet(
     account=cold_wallet.classic_address,
-    transfer_rate=1020000000,
+    transfer_rate=1000500000,
     tick_size=5,
     domain=bytes.hex("example.com".encode("ASCII")),
     set_flag=xrpl.models.transactions.AccountSetFlag.ASF_DEFAULT_RIPPLE,
