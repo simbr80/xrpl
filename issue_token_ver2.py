@@ -106,3 +106,62 @@ response = client.request(xrpl.models.requests.GatewayBalances(
     hotwallet=[hot_wallet.classic_address]
 ))
 print(response)
+
+
+account_1 = generate_faucet_wallet(client, debug=True)
+
+# Create trust line from hot 2 to cold address -----------------------------------
+currency_code = "FOO"
+trust_set_tx = xrpl.models.transactions.TrustSet(
+    account=account_1.classic_address,
+    limit_amount=xrpl.models.amounts.issued_currency_amount.IssuedCurrencyAmount(
+        currency=currency_code,
+        issuer=cold_wallet.classic_address,
+        value="10000000000", # Large limit, arbitrarily chosen
+
+    ),
+    flags=131072
+)
+ts_prepared = xrpl.transaction.safe_sign_and_autofill_transaction(
+    transaction=trust_set_tx,
+    wallet=account_1,
+    client=client,
+)
+print("Creating trust line from hot address 2 to issuer...")
+response = xrpl.transaction.send_reliable_submission(ts_prepared, client)
+print(response)
+
+
+# Send token 2 -------------------------------------------------------------------
+issue_quantity = "2000"
+send_token_tx = xrpl.models.transactions.Payment(
+    account=hot_wallet.classic_address,
+    destination=account_1.classic_address,
+    amount=xrpl.models.amounts.issued_currency_amount.IssuedCurrencyAmount(
+        currency=currency_code,
+        issuer=cold_wallet.classic_address,
+        value=issue_quantity
+    ),
+    flags=131072,
+    send_max=xrpl.models.amounts.issued_currency_amount.IssuedCurrencyAmount(
+        currency=currency_code,
+        issuer=cold_wallet.classic_address,
+        value="2000"
+    )
+)
+pay_prepared = xrpl.transaction.safe_sign_and_autofill_transaction(
+    transaction=send_token_tx,
+    wallet=hot_wallet,
+    client=client,
+)
+print(f"Sending {issue_quantity} {currency_code} to {account_1.classic_address}...")
+response = xrpl.transaction.send_reliable_submission(pay_prepared, client)
+print(response)
+
+# Check balances ---------------------------------------------------------------
+print("Getting hot address balances...")
+response = client.request(xrpl.models.requests.AccountLines(
+    account=account_1.classic_address,
+    ledger_index="validated",
+))
+print(response)
